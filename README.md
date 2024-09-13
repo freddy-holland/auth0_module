@@ -22,8 +22,15 @@ func main() {
 	godotenv.Load(".env")
 	e := echo.New()
 
+	authCfg := auth.AuthConfig{
+		Auth0Domain: os.Getenv("AUTH0_DOMAIN"),
+		Auth0ClientID: os.Getenv("AUTH0_CLIENT_ID"),
+		Auth0ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
+		Auth0CallbackURL: os.Getenv("AUTH0_CALLBACK_URL"),
+	}
+
 	auth.NewAuth()
-	auth.NewStore(os.Getenv("SECRET"))
+	auth.NewStore(os.Getenv("STORE_SECRET"))
 
 	routes.SetupAuthRoutes(e)
 
