@@ -6,13 +6,19 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
-	"os"
 )
 
 var SessionStore *sessions.CookieStore
 
 func NewStore(secret string) {
 	SessionStore = sessions.NewCookieStore([]byte(secret))
+}
+
+type AuthConfig struct {
+	Auth0Domain       string
+	Auth0ClientID     string
+	Auth0ClientSecret string
+	Auth0CallbackURL  string
 }
 
 type Authenticator struct {
@@ -22,10 +28,10 @@ type Authenticator struct {
 
 var Auth *Authenticator
 
-func NewAuth() error {
+func NewAuth(cfg *AuthConfig) error {
 	provider, err := oidc.NewProvider(
 		context.Background(),
-		"https://"+os.Getenv("AUTH0_DOMAIN")+"/",
+		"https://"+cfg.Auth0Domain+"/",
 	)
 
 	if err != nil {
@@ -33,9 +39,9 @@ func NewAuth() error {
 	}
 
 	conf := oauth2.Config{
-		ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
-		ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("AUTH0_CALLBACK_URL"),
+		ClientID:     cfg.Auth0ClientID,
+		ClientSecret: cfg.Auth0ClientSecret,
+		RedirectURL:  cfg.Auth0CallbackURL,
 		Endpoint:     provider.Endpoint(),
 		Scopes:       []string{oidc.ScopeOpenID, "profile"},
 	}
